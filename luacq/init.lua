@@ -72,12 +72,8 @@ function CQ.new()
 			if evh.class==hClass then
 				CQLuaIf_DebugWrite("[LUA] Calling Handler: "..tostring(evh.desc).."\n")
 				local ret = evh.handler(...)
-
-				if ret == 0 then
-					return 1 -- blocking message for further infomation
-				else 
-					return 0 -- non-blocking
-				end
+				CQLuaIf_DebugWrite("[LUA] Handler done(".. tostring(ret) ..").\n")
+				return ret
 
  				--[[
 					if     hClass == CQ.handlerClasses["Startup"] then
@@ -121,6 +117,7 @@ CQLuaIf_SetInterfaceName("CQAPI") -- calls C interface defined in C code to set 
 
 function aha(msgType, senderID, sendTime, Msg, Font)
 	CQLuaIf_sendPrivateMsg(senderID, string.format("[LUA] (Handler Called) Hello from %s\n", _VERSION))
+	return 1
 	-- io.write(string.format("[LUA] (Handler Called) Hello from %s\n", _VERSION))
 end
 
