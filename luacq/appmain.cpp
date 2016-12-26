@@ -112,7 +112,7 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 	return 0;
 }
  
-/*
+/* 
 * Type=21 私聊消息
 * subType 子类型，11/来自好友 1/来自在线状态 2/来自群 3/来自讨论组
 */
@@ -124,28 +124,35 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 
 	if (IsInterfaceNameSet && enabled) {
 		//msgType, senderID, sendTime, Msg, Font
+		//Debug_Write("  forking new thread..\n");
+		//char s[512];
+		//sprintf_s(s, 512, "state pointed to %ld", state);
+		//Debug_Write(s);
+		//lua_State * tstate = lua_newthread(state);
+
 		Debug_Write("  Pushing Parameters..\n");
-
-		Debug_Write("  Current IfName: ");
-		Debug_Write(InterfaceName);
 		lua_getglobal(state, InterfaceName);
-		Debug_Write(" ...Pushed.\n");
-
-		Debug_Write("  Method Name: PostMessage");
 		lua_getfield(state, -1, "PostMessage");
-		Debug_Write(" ...Pushed.\n");
-
 		lua_pushinteger(state, EVENT_PrivateMsg);
-
 		lua_pushinteger(state, subType);
 		lua_pushinteger(state, fromQQ);
 		lua_pushinteger(state, sendTime);
 		lua_pushstring(state, msg);
 		lua_pushinteger(state, font);
-		Debug_Write("  Do Lua Call..");
-		lua_call(state, 5, 1);
-		Debug_Write("  Get Return..");
-		return lua_tointeger(state, -1);
+		Debug_Write("  Do Lua_call()..\n");
+		int result = lua_pcall(state, 6, 1, 0);
+		if (result) {
+			lua_throw(state);
+		} else {
+			Debug_Write("  Call returned without error\n");
+		}
+
+		Debug_Write("  Getting lua script Return..\n");
+		result = lua_tointeger(state, -1);
+		char s[30];
+		sprintf(s, "result = %d\n", result);
+		Debug_Write(s);
+		return result;
 	}
 	Debug_Write("PrivateMSG Discarded\n");
 	//return EVENT_BLOCK;

@@ -53,9 +53,8 @@ lua_State * lua_doInit(){
 		}
  
 		Debug_Write("lua_doInit()::Lua_pcall()\n");
-		lua_pcall(state, 0, 0, 0);
 
-		Debug_Write("End Lua_pcall()\n");
+		lua_pcall(state, 0, 0, 0);
 
 		if (result != LUA_OK) {
 			lua_throw(state);
@@ -67,6 +66,7 @@ lua_State * lua_doInit(){
 		CQ_setFatal(ac, "Lua Engine has been disabled since it finds no initial script.");
 	}
 
+	return state;
 
 }
 
