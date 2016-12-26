@@ -125,6 +125,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="luawrappers.cpp" />
     <ClCompile Include="lua_src\lapi.c" />
     <ClCompile Include="lua_src\lauxlib.c" />
     <ClCompile Include="lua_src\lbaselib.c" />

@@ -1,7 +1,7 @@
 /*
-* CoolQ Demo for VC++ 
+* Luacq - Lua interface enabled cq plugin
 * Api Version 9
-* Written by Coxxs & Thanks for the help of orzFly
+* Written by imkzh based on cq-vcsdk
 */
 #include "stdafx.h"
 #include "string"
@@ -35,7 +35,6 @@ CQEVENT(const char*, AppInfo, 0)() {
 * 不要在本函数处理其他任何代码，以免发生异常情况。如需执行初始化代码请在Startup事件中执行（Type=1001）。
 */
 CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
-	
 	ac = AuthCode;
 	return 0;
 }
