@@ -4,10 +4,17 @@
 * Written by Coxxs & Thanks for the help of orzFly
 */
 #include "stdafx.h"
-#include "python.h"
 #include "string"
 #include "cqp.h"
 #include "appmain.h" //应用AppID等信息，请正确填写，否则酷Q可能无法加载
+
+#ifdef __cplusplus
+#include "lua_src\lua.hpp"
+#else
+#include "lua_src\lua.h"
+# include <lua5.2/lualib.h>
+# include <lua5.2/lauxlib.h>
+#endif
 
 using namespace std;
 
@@ -88,84 +95,9 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 
 	//如果要回复消息，请调用酷Q方法发送，并且这里 return EVENT_BLOCK - 截断本条消息，不再继续处理  注意：应用优先级设置为"最高"(10000)时，不得使用本返回值
 	//如果不回复消息，交由之后的应用/过滤器处理，这里 return EVENT_IGNORE - 忽略本条消息
-	
-	PyObject *pName, *pModule, *pDict, *pFunc, *pValue;
-	const char *appdir = CQ_getAppDirectory(ac);
-	//char cqapath[512] = {0};
-	//strcpy(cqapath, appdir);
-
-	//strcat((char *)cqapath, "..\\..\\CQA.exe");
-
-	char * cqapath = "D:\\Documents\\Desktop\\cqpAir\\CQA.exe";
-
-	CQ_sendPrivateMsg(ac, fromQQ, cqapath);
-
-	wchar_t * pyhome = Py_DecodeLocale(".", NULL);
-	wchar_t * pyProgram = Py_DecodeLocale(cqapath, NULL);
-	Py_SetProgramName(pyProgram);
-	Py_SetPythonHome(pyhome);
-	Py_NoSiteFlag = 1;
-	Py_InitializeEx(0);
-	//Py_Initialize();
-	PyRun_SimpleString("import sys");
-	PyRun_SimpleString("sys.path = ['.','./scripts','python35.zip','python35.zip/DLLs','python35.zip/Lib','python35.zip/site-packages']");
-	PyRun_SimpleString("import random\nprint(random.uniform(1,4))");
-	//PyRun_SimpleString("import random\nprint(random.uniform(1,2))");
-	if (PyErr_Occurred()) {
-		CQ_sendPrivateMsg(ac, fromQQ, "failed to load python.");
-	}
-	else {
-		CQ_sendPrivateMsg(ac, fromQQ, "Initialize done!");
-	}
 	 
-	pName = PyUnicode_DecodeFSDefault("abcd");
-	pModule = PyImport_Import(pName);
-	Py_DECREF(pName);
-
-
-	//CQ_sendPrivateMsg(ac, fromQQ, appdir);
-	if (pModule != NULL) {
-		pFunc = PyObject_GetAttrString(pModule, "abcd");
-		/* pFunc is a new reference */
-
-		if (pFunc && PyCallable_Check(pFunc)) {
-			
-			pValue = PyObject_CallObject(pFunc,NULL);
-			//Py_DECREF(pArgs);
-			if (pValue != NULL) {
-				char s[100];
-				sprintf_s(s,"Result of call: %ld", PyLong_AsLong(pValue));
-				//CQ_addLog(ac,20000,"你好",s);
-				CQ_sendPrivateMsg(ac, fromQQ, s);
-				Py_DECREF(pValue);
-			}
-			else {
-				Py_DECREF(pFunc);
-				Py_DECREF(pModule);
-				PyErr_Print();
-				CQ_sendPrivateMsg(ac, fromQQ, "调用失败");
-				return 1;
-			}
-		}
-		else {
-			if (PyErr_Occurred())
-				PyErr_Print();
-			CQ_sendPrivateMsg(ac, fromQQ, "无法找到函数");
-		}
-		Py_XDECREF(pFunc);
-		Py_DECREF(pModule);
-	}
-	else {
-		PyErr_Print();
-		char s[100];
-		sprintf(s, "Failed to load \"%s\"", "1");
-		CQ_sendPrivateMsg(ac, fromQQ, s);
-		return 1;
-	}
-	Py_Finalize();
-
-	return EVENT_BLOCK;
-	//return EVENT_IGNORE;
+	//return EVENT_BLOCK;
+	return EVENT_IGNORE;
 }
 
 
