@@ -111,7 +111,7 @@ CQEVENT(int32_t, __eventDisable, 0)() {
 	enabled = false;
 	return 0;
 }
- 
+  
 /* 
 * Type=21 私聊消息
 * subType 子类型，11/来自好友 1/来自在线状态 2/来自群 3/来自讨论组
@@ -139,14 +139,16 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 		lua_pushinteger(state, sendTime);
 		lua_pushstring(state, msg);
 		lua_pushinteger(state, font);
-		Debug_Write("  Do Lua_call()..\n");
+		Debug_Write("  [c->lua|CQAPI.PostMessage]Do Lua_call()..\n");
 		int result = lua_pcall(state, 6, 1, 0);
+
 		if (result) {
+			Debug_Write("lua_pcall_err\n");
 			lua_throw(state);
 		} else {
 			Debug_Write("  Call returned without error\n");
 		}
-
+		 
 		Debug_Write("  Getting lua script Return..\n");
 		result = lua_tointeger(state, -1);
 		char s[30];

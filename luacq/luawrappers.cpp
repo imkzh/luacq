@@ -142,17 +142,31 @@ extern "C"
 /*Lua interface for CQ_sendPrivateMsg*/
 int luai_sendPrivateMsg(lua_State * state) {
 	/*int32_t AuthCode, int64_t QQID, const char *msg*/
-
+	Debug_Write("CPP - LuaWrapper::SendPrivateMessage\n");
 	// The number of function arguments will be on top of the stack.
 	int args = lua_gettop(state);
 	if (args == 2) {
-		int64_t toID = lua_tointeger(state, 0);
-		char * msg = (char *)lua_tostring(state, 1);
-		CQ_sendPrivateMsg(ac, toID, msg);
-		lua_pushnumber(state, 0);
+		int64_t toID = lua_tointeger(state, 1);
+		char * msg = (char *)lua_tostring(state, 2);
+		Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> Calling CQAPI\n");
+		char s[30];
+		sprintf(s, "   arg: toID: %ld\n", toID);
+		Debug_Write(s);
+		sprintf(s, "   arg: msg: %s\n", msg);
+		Debug_Write(s);
+
+		int ret = CQ_sendPrivateMsg(ac, toID, msg);
+		
+		sprintf(s, "retval = %d\n", ret);
+		Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> API Called.\n");
+		Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> returned ");
+		Debug_Write(s);
+
+		//lua_pushnumber(state, 0);
 	}
 	else {
-		lua_pushnumber(state, -1);
+		Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> Arguments Check Failed.\n");
+		//lua_pushnumber(state, -1);
 	}
 
 	// Push the return value on top of the stack. NOTE: We haven't popped the
@@ -160,7 +174,8 @@ int luai_sendPrivateMsg(lua_State * state) {
 	// must, but at least in stack machines like the JVM, the stack will be
 	// cleaned between each function call.
 	// Let Lua know how many return values we've passed
-	return 1;
+	Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> Wrapper Return.\n"); 
+	return 0;
 }
 
 #ifdef __cplusplus

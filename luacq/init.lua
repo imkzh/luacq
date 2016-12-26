@@ -63,9 +63,6 @@ function CQ.new()
 			CQLuaIf_DebugWrite("[LUA|EXTRA]    "..tostring(args[i]).."\n")
 		end
 
-		CQLuaIf_DebugWrite(tostring(self).."\n")
-		CQLuaIf_DebugWrite(tostring(self.EventHandlers).."\n")
-
 		for i,evh in ipairs(self.EventHandlers) do
 			CQLuaIf_DebugWrite("[LUA] For...\n")
 			CQLuaIf_DebugWrite("[LUA] HandlerType: "..tostring(evh.class).."\n")
@@ -116,13 +113,15 @@ CQAPI = CQ.new()
 CQLuaIf_SetInterfaceName("CQAPI") -- calls C interface defined in C code to set this new instance as interface.
 
 function aha(msgType, senderID, sendTime, Msg, Font)
-	CQLuaIf_sendPrivateMsg(senderID, string.format("[LUA] (Handler Called) Hello from %s\n", _VERSION))
+	CQLuaIf_DebugWrite("[LUA] before CQLuaIf_sendPrivateMsg()\n")
+	CQLuaIf_sendPrivateMsg(senderID, string.format("[LUA] (Handler Called) Hello from %s", _VERSION))
+	CQLuaIf_DebugWrite("[LUA] after CQLuaIf_sendPrivateMsg(),return\n")
 	return 1
 	-- io.write(string.format("[LUA] (Handler Called) Hello from %s\n", _VERSION))
 end
 
 CQLuaIf_DebugWrite("[LUA] Before RegisterHandler\n")
-CQAPI:RegisterHandler(CQ.handlerClasses["PrivateMsg"],"A simple StartupHandler.",aha)
+CQAPI:RegisterHandler(CQ.handlerClasses["PrivateMsg"],"A simple onPrivateMessage Handler.",aha)
 CQLuaIf_DebugWrite("[LUA] After RegisterHandler\n")
 
 for i,v in ipairs(CQAPI.EventHandlers) do
