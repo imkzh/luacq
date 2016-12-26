@@ -16,6 +16,8 @@
 	# include "lua_src\lauxlib.h"
 #endif
 #include "luawrappers.h"
+#include "Events.h"
+#include "DebugLogging.h"
 
 using namespace std;
 
@@ -26,6 +28,22 @@ extern unsigned char IsInterfaceNameSet;
 int ac = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
 lua_State * state;
+
+/*
+	Event Startup();
+	Event Exit();
+	Event Enable();
+	Event Disable();
+	Event PrivateMsg(msgType, senderID, sendTime, Msg, Font);
+	Event GroupMsg(msgType, groupID, senderID, Anonymous, sendTime, Msg, Font);
+	Event DiscussMsg(msgType, discussID, senderID, sendTime, Msg, Font);
+	Event GroupAdminSet(operationType, groupID, infectedID, sendTime);
+	Event GroupMemberDecreased(infoType, groupID, sendTime, infectedID, operatorID);
+	Event GroupMemberIncreased(infoType, groupID, sendTime, infectedID, operatorID);
+	Event FriendAdded(infoType, sendTime, infectedID);
+	Event FriendAddRequesting(requestType, sendTime, senderID, Msg) returns RESPONSE;
+	Event GroupAddRequesting(requestType, sendTime, senderID, Msg) returns RESPONSE;
+*/
 
 /* 
 * 返回应用的ApiVer、Appid，打包后将不会调用
@@ -52,11 +70,13 @@ CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 * 如非必要，不建议在这里加载窗口。（可以添加菜单，让用户手动打开窗口）
 */
 CQEVENT(int32_t, __eventStartup, 0)() {
-	state = lua_doInit();
 	
+	Debug_Start();
+	Debug_Write("lua_doInit().\n");
+	state = lua_doInit();
+	Debug_Write("Lua Loaded!\n");
 	return 0;
 }
-
 
 /*
 * Type=1002 酷Q退出
@@ -65,6 +85,7 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 */
 CQEVENT(int32_t, __eventExit, 0)() {
 	lua_close(state);
+	Debug_Stop();
 	return 0;
 }
 
@@ -99,13 +120,34 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 
 	//如果要回复消息，请调用酷Q方法发送，并且这里 return EVENT_BLOCK - 截断本条消息，不再继续处理  注意：应用优先级设置为"最高"(10000)时，不得使用本返回值
 	//如果不回复消息，交由之后的应用/过滤器处理，这里 return EVENT_IGNORE - 忽略本条消息
-	 
+	Debug_Write("Event PrivateMSG\n");
+
 	if (IsInterfaceNameSet && enabled) {
-		
+		//msgType, senderID, sendTime, Msg, Font
+		Debug_Write("  Pushing Parameters..\n");
 
+		Debug_Write("  Current IfName: ");
+		Debug_Write(InterfaceName);
+		lua_getglobal(state, InterfaceName);
+		Debug_Write(" ...Pushed.\n");
 
+		Debug_Write("  Method Name: PostMessage");
+		lua_getfield(state, -1, "PostMessage");
+		Debug_Write(" ...Pushed.\n");
+
+		lua_pushinteger(state, EVENT_PrivateMsg);
+
+		lua_pushinteger(state, subType);
+		lua_pushinteger(state, fromQQ);
+		lua_pushinteger(state, sendTime);
+		lua_pushstring(state, msg);
+		lua_pushinteger(state, font);
+		Debug_Write("  Do Lua Call..");
+		lua_call(state, 5, 1);
+		Debug_Write("  Get Return..");
+		return lua_tointeger(state, -1);
 	}
-
+	Debug_Write("PrivateMSG Discarded\n");
 	//return EVENT_BLOCK;
 	return EVENT_IGNORE;
 }

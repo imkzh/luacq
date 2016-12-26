@@ -112,6 +112,9 @@
     <ClCompile Include="luawrappers.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="DebugLogging.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua_src\lapi.h">
@@ -207,6 +210,12 @@
     <ClInclude Include="luawrappers.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="Events.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugLogging.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lua">
@@ -230,6 +239,9 @@
     <Filter Include="metainfo">
       <UniqueIdentifier>{d424b34b-aa4b-498a-9d14-60edc9d10155}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripts">
+      <UniqueIdentifier>{8bd01e8e-52d7-43a5-a72d-e6355990cdbb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Library Include="CQP.lib">
@@ -239,6 +251,9 @@
   <ItemGroup>
     <None Include="com.kenstudio.luacq.json">
       <Filter>metainfo</Filter>
+    </None>
+    <None Include="init.lua">
+      <Filter>Scripts</Filter>
     </None>
   </ItemGroup>
 </Project>

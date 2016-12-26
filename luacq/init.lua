@@ -1,6 +1,8 @@
 local CQ = {}
 CQ.__index = CQ
 
+CQLuaIf_DebugWrite("Init.lua is Loading...\n")
+
 CQ.handlerClasses = {
                ["Startup"] =  0, -- 应用启动
                   ["Exit"] =  1, -- 应用程序即将退出
@@ -38,21 +40,45 @@ function CQ.new()
 	self.RegisteredHanelers = 0
 	self.EventHandlers = {}
 
-	function self.RegisterHandler(instance, hClass, func)
-		io.write(string.format("[LUA] CQ.RegisterHandler(%s,%s)\n", hClass,func))
-		local tbl = {hClass, func}
+	function self.RegisterHandler(instance, hClass, description, func)
+		-- io.write(string.format("[LUA] CQ.RegisterHandler(%s,%s,%s)\n", hClass,description,func))
+		local tbl = {
+			class = hClass, 
+			desc = description, 
+			handler = func
+		}
 		table.insert(instance.EventHandlers, tbl)
 		instance.RegisteredHanelers = instance.RegisteredHanelers + 1
 	end
 
+
 	function self.PostMessage(hClass, ...)
 		local args = table.pack(...)
 
-		io.write("[LUA] PostMessage Called. with ".. (args.n) .. " Extra args: \n")
+		CQLuaIf_DebugWrite("[LUA] PostMessage Called. with ".. (args.n) .. " Extra args: \n")
+
+		-- hClass = tonumber(args[0])
+		print("[LUA]    hClass = " .. hClass)
+		for i=1,args.n do
+			CQLuaIf_DebugWrite("[LUA|EXTRA]    "..tostring(args[i]).."\n")
+		end
+
+		CQLuaIf_DebugWrite(tostring(self).."\n")
+		CQLuaIf_DebugWrite(tostring(self.EventHandlers).."\n")
 
 		for i,evh in ipairs(self.EventHandlers) do
-			if evh[0]==hClass then
-				evh[1](...)
+			CQLuaIf_DebugWrite("[LUA] For...\n")
+			CQLuaIf_DebugWrite("[LUA] HandlerType: "..tostring(evh.class).."\n")
+			if evh.class==hClass then
+				CQLuaIf_DebugWrite("[LUA] Calling Handler: "..tostring(evh.desc).."\n")
+				local ret = evh.handler(...)
+
+				if ret == 0 then
+					return 1 -- blocking message for further infomation
+				else 
+					return 0 -- non-blocking
+				end
+
  				--[[
 					if     hClass == CQ.handlerClasses["Startup"] then
 						evh[1](...)
@@ -84,12 +110,6 @@ function CQ.new()
 				]]--
 			end
 		end
-
-		-- hClass = tonumber(args[0])
-		print("[LUA]    hClass = " .. hClass)
-		for i=1,args.n do
-			print("[LUA|EXTRA]    "..tostring(args[i]))
-		end
 	end
 	
 	return self
@@ -97,14 +117,17 @@ end
 
 
 CQAPI = CQ.new()
-CQLuaI_SetInterface("CQAPI") -- calls C interface defined in C code to set this new instance as interface.
+CQLuaIf_SetInterfaceName("CQAPI") -- calls C interface defined in C code to set this new instance as interface.
 
-function aha()
-	io.write(string.format("[LUA] Hello from %s\n", _VERSION))
+function aha(msgType, senderID, sendTime, Msg, Font)
+	CQLuaIf_sendPrivateMsg(senderID, string.format("[LUA] (Handler Called) Hello from %s\n", _VERSION))
+	-- io.write(string.format("[LUA] (Handler Called) Hello from %s\n", _VERSION))
 end
 
-CQAPI:RegisterHandler(CQ.handlerClasses["Startup"],aha)
- 
+CQLuaIf_DebugWrite("[LUA] Before RegisterHandler\n")
+CQAPI:RegisterHandler(CQ.handlerClasses["PrivateMsg"],"A simple StartupHandler.",aha)
+CQLuaIf_DebugWrite("[LUA] After RegisterHandler\n")
+
 for i,v in ipairs(CQAPI.EventHandlers) do
 	print(i)
 	for h,f in ipairs(v) do

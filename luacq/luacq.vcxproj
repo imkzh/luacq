@@ -77,7 +77,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetDir)$(TargetFileName)" "D:\Documents\Desktop\cqpAir\app\$(TargetFileName)"</Command>
+      <Command>copy "$(TargetDir)$(TargetFileName)" "D:\Documents\Desktop\cqpAir\app\$(TargetFileName)"
+copy "$(ProjectDir)init.lua" "D:\Documents\Desktop\cqpAir\init.lua"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制输出到CQA目录</Message>
@@ -86,6 +87,8 @@
   <ItemGroup>
     <ClInclude Include="appmain.h" />
     <ClInclude Include="cqp.h" />
+    <ClInclude Include="DebugLogging.h" />
+    <ClInclude Include="Events.h" />
     <ClInclude Include="luawrappers.h" />
     <ClInclude Include="lua_src\lapi.h" />
     <ClInclude Include="lua_src\lauxlib.h" />
@@ -118,6 +121,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
+    <ClCompile Include="DebugLogging.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -170,6 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="com.kenstudio.luacq.json" />
+    <None Include="init.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
