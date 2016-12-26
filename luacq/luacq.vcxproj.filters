@@ -88,12 +88,6 @@
     <ClCompile Include="lua_src\ltm.c">
       <Filter>Lua\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="lua_src\lua.c">
-      <Filter>Lua\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="lua_src\luac.c">
-      <Filter>Lua\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="lua_src\lundump.c">
       <Filter>Lua\Sources</Filter>
     </ClCompile>
@@ -208,6 +202,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="luawrappers.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

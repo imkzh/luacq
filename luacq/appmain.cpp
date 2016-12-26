@@ -9,18 +9,23 @@
 #include "appmain.h" //应用AppID等信息，请正确填写，否则酷Q可能无法加载
 
 #ifdef __cplusplus
-#include "lua_src\lua.hpp"
+	#include "lua_src\lua.hpp"
 #else
-#include "lua_src\lua.h"
-# include <lua5.2/lualib.h>
-# include <lua5.2/lauxlib.h>
+	#include "lua_src\lua.h"
+	# include "lua_src\lualib.h"
+	# include "lua_src\lauxlib.h"
 #endif
+#include "luawrappers.h"
 
 using namespace std;
 
+extern char InterfaceName[50];
+extern unsigned char IsInterfaceNameSet;
+
+
 int ac = -1; //AuthCode 调用酷Q的方法时需要用到
 bool enabled = false;
-
+lua_State * state;
 
 /* 
 * 返回应用的ApiVer、Appid，打包后将不会调用
@@ -47,7 +52,7 @@ CQEVENT(int32_t, Initialize, 4)(int32_t AuthCode) {
 * 如非必要，不建议在这里加载窗口。（可以添加菜单，让用户手动打开窗口）
 */
 CQEVENT(int32_t, __eventStartup, 0)() {
-
+	state = lua_doInit();
 	
 	return 0;
 }
@@ -59,7 +64,7 @@ CQEVENT(int32_t, __eventStartup, 0)() {
 * 本函数调用完毕后，酷Q将很快关闭，请不要再通过线程等方式执行其他代码。
 */
 CQEVENT(int32_t, __eventExit, 0)() {
-
+	lua_close(state);
 	return 0;
 }
 
@@ -95,6 +100,10 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 	//如果要回复消息，请调用酷Q方法发送，并且这里 return EVENT_BLOCK - 截断本条消息，不再继续处理  注意：应用优先级设置为"最高"(10000)时，不得使用本返回值
 	//如果不回复消息，交由之后的应用/过滤器处理，这里 return EVENT_IGNORE - 忽略本条消息
 	 
+	if (IsInterfaceNameSet && enabled) {
+		
+	}
+
 	//return EVENT_BLOCK;
 	return EVENT_IGNORE;
 }
