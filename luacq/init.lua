@@ -58,7 +58,7 @@ function CQ.new()
 		CQLuaIf_DebugWrite("[LUA] PostMessage Called. with ".. (args.n) .. " Extra args: \n")
 
 		-- hClass = tonumber(args[0])
-		CQLuaIf_DebugWrite("[LUA]    hClass = " .. hClass)
+		CQLuaIf_DebugWrite("[LUA]    hClass = " .. hClass .."\n")
 		for i=1,args.n do
 			CQLuaIf_DebugWrite("[LUA|EXTRA]    "..tostring(args[i]).."\n")
 		end
