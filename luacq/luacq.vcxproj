@@ -87,6 +87,7 @@ copy "$(ProjectDir)init.lua" "D:\Documents\Desktop\cqpAir\init.lua"</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="appmain.h" />
+    <ClInclude Include="builtinfunctions.h" />
     <ClInclude Include="cqp.h" />
     <ClInclude Include="DebugLogging.h" />
     <ClInclude Include="Events.h" />
@@ -122,6 +123,7 @@ copy "$(ProjectDir)init.lua" "D:\Documents\Desktop\cqpAir\init.lua"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appmain.cpp" />
+    <ClCompile Include="builtinfunctions.cpp" />
     <ClCompile Include="DebugLogging.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>

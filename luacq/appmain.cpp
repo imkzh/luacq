@@ -12,8 +12,8 @@
 	#include "lua_src\lua.hpp"
 #else
 	#include "lua_src\lua.h"
-	# include "lua_src\lualib.h"
-	# include "lua_src\lauxlib.h"
+	#include "lua_src\lualib.h"
+	#include "lua_src\lauxlib.h"
 #endif
 
 #include "luawrappers.h"
