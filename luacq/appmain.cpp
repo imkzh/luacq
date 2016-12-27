@@ -15,9 +15,12 @@
 	# include "lua_src\lualib.h"
 	# include "lua_src\lauxlib.h"
 #endif
+
 #include "luawrappers.h"
 #include "Events.h"
 #include "DebugLogging.h"
+
+#include "iconv.h"
 
 using namespace std;
 
@@ -122,6 +125,10 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 	//如果不回复消息，交由之后的应用/过滤器处理，这里 return EVENT_IGNORE - 忽略本条消息
 	Debug_Write("Event PrivateMSG\n");
 
+	char * message;
+	gbk2utf(msg, &message);
+
+
 	if (IsInterfaceNameSet && enabled) {
 		//msgType, senderID, sendTime, Msg, Font
 		//Debug_Write("  forking new thread..\n");
@@ -137,7 +144,7 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 		lua_pushinteger(state, subType);
 		lua_pushinteger(state, fromQQ);
 		lua_pushinteger(state, sendTime);
-		lua_pushstring(state, msg);
+		lua_pushstring(state, message);
 		lua_pushinteger(state, font);
 		Debug_Write("  [c->lua|CQAPI.PostMessage]Do Lua_call()..\n");
 		int result = lua_pcall(state, 6, 1, 0);
@@ -150,12 +157,24 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t sendTime, int64
 		}
 		 
 		Debug_Write("  Getting lua script Return..\n");
-		result = lua_tointeger(state, -1);
+		result = (int)lua_tointeger(state, -1);
+
 		char s[30];
-		sprintf(s, "result = %d\n", result);
+		sprintf_s(s, 30, "result = %d\n", result);
 		Debug_Write(s);
+
+		free(message);
 		return result;
 	}
+	else{
+		if (!enabled) {
+			Debug_Write("Plugin Not Enabled!");
+		}
+		if(!IsInterfaceNameSet) {
+			Debug_Write("Plugin Interface Name Not Set!");
+		}
+	}
+	free(message);
 	Debug_Write("PrivateMSG Discarded\n");
 	//return EVENT_BLOCK;
 	return EVENT_IGNORE;

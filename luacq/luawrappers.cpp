@@ -37,6 +37,36 @@ void lua_throw(lua_State * state) {
 	lua_pop(state, 1);
 }
 
+void gbk2utf(const char * source, char ** dest) {
+	size_t datlen = strlen(source);
+	size_t bufflen = 2048;
+	char * message = (char *)calloc(bufflen, 1);
+ 
+	*dest = message;
+
+	char * pIn = (char*)source;
+	char * pOut = (char*)message;
+
+	iconv_t conv = iconv_open("UTF-8", "GBK");
+	iconv(conv, (const char **)&pIn, &datlen, &pOut, &bufflen);
+	iconv_close(conv);
+}
+
+void utf2gbk(const char * source, char ** dest) {
+	size_t datlen = strlen(source);
+	size_t bufflen = 2048;
+	char * message = (char *)calloc(bufflen, 1);
+
+	*dest = message;
+
+	char * pIn = (char*)source;
+	char * pOut = (char*)message;
+
+	iconv_t conv = iconv_open("GBK", "UTF-8");
+	iconv(conv, (const char **)&pIn, &datlen, &pOut, &bufflen);
+	iconv_close(conv);
+}
+
 lua_State * lua_doInit(){
 	lua_State *state = luaL_newstate();
 	luaL_openlibs(state);
@@ -151,13 +181,9 @@ int luai_sendPrivateMsg(lua_State * state) {
 		int64_t toID = lua_tointeger(state, 1);
 		char * msg = (char *)lua_tostring(state, 2);
 		size_t slen = strlen(msg);
-		char * gbkmsg = (char *)malloc(2048);
-		size_t gbkmsg_sz = 2048;
 
-
-		iconv_t conv = iconv_open("UTF-8", "GBK");
-		iconv(conv, ((const char **)&msg), &slen, ((char **)&gbkmsg), &gbkmsg_sz);
-		iconv_close(conv);
+		char * gbkmsg;
+		utf2gbk(msg, &gbkmsg);
 
 		int ret = CQ_sendPrivateMsg(ac, toID, gbkmsg);
 		free(gbkmsg);
@@ -177,7 +203,7 @@ int luai_sendPrivateMsg(lua_State * state) {
 extern "C"
 #endif
 /*Lua interface for CQ_sendGroupMsg*/
-int luai_sendGroupMsg(lua_State * state) {
+int luai_sendGroupMsg(lua_State * state) { 
 	/*int32_t AuthCode, int64_t groupid, const char *msg*/
 	return 0;
 }
@@ -195,13 +221,9 @@ int luai_sendDiscussMsg(lua_State * state) {
 		int64_t toID = lua_tointeger(state, 1);
 		char * msg = (char *)lua_tostring(state, 2);
 		size_t slen = strlen(msg);
-		char * gbkmsg = (char *)malloc(2048);
-		size_t gbkmsg_sz = 2048;
 
-
-		iconv_t conv = iconv_open("GB2312", "UTF-8");
-		iconv(conv, (const char **)&msg, &slen, (char **)&gbkmsg, &gbkmsg_sz);
-		iconv_close(conv);
+		char * gbkmsg;
+		utf2gbk(msg, &gbkmsg);
 		
 		int ret = CQ_sendPrivateMsg(ac, toID, gbkmsg);
 		free(gbkmsg);

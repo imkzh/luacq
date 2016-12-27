@@ -58,7 +58,7 @@ function CQ.new()
 		CQLuaIf_DebugWrite("[LUA] PostMessage Called. with ".. (args.n) .. " Extra args: \n")
 
 		-- hClass = tonumber(args[0])
-		print("[LUA]    hClass = " .. hClass)
+		CQLuaIf_DebugWrite("[LUA]    hClass = " .. hClass)
 		for i=1,args.n do
 			CQLuaIf_DebugWrite("[LUA|EXTRA]    "..tostring(args[i]).."\n")
 		end
@@ -115,7 +115,7 @@ CQLuaIf_SetInterfaceName("CQAPI") -- calls C interface defined in C code to set 
 function aha(msgType, senderID, sendTime, Msg, Font)
 	CQLuaIf_DebugWrite("[LUA] before CQLuaIf_sendPrivateMsg()\n")
 	-- CQLuaIf_sendPrivateMsg  
-	if pcall(CQLuaIf_sendPrivateMsg, senderID, string.format("[LUA] (Handler Called) Hello from %s\nWhat you told me is:%s\n???", _VERSION, Msg)) then
+	if pcall(CQLuaIf_sendPrivateMsg, senderID, string.format("[LUA] (Handler Called) Hello from %s\n你跟我说了:%s\n", _VERSION, Msg)) then
 		CQLuaIf_DebugWrite("[LUA] CQLuaIf_sendPrivateMsg() ->Done\n")
 	else
 		CQLuaIf_DebugWrite("[LUA] CQLuaIf_sendPrivateMsg() ->failed\n")
