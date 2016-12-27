@@ -12,6 +12,8 @@
 #include "cqp.h"
 #include "DebugLogging.h"
 
+#include "iconv.h"
+
 extern int ac;
 char InterfaceName[50] = {-1};
 unsigned char IsInterfaceNameSet = 0;
@@ -28,8 +30,8 @@ void lua_throw(lua_State * state) {
 		Debug_Write((char*)message);
 		puts(message);
 	}else{
-		Debug_Write("lua_throw: lua reported error with <Null String>");
-		puts("lua_throw: lua reported error with <Null String>");
+		Debug_Write("lua_throw: lua reported error but returned <Null String>");
+		puts("lua_throw: lua reported error but returned <Null String>");
 	}
 
 	lua_pop(state, 1);
