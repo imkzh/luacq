@@ -150,7 +150,17 @@ int luai_sendPrivateMsg(lua_State * state) {
 	if (args == 2) {
 		int64_t toID = lua_tointeger(state, 1);
 		char * msg = (char *)lua_tostring(state, 2);
-		int ret = CQ_sendPrivateMsg(ac, toID, msg);
+		size_t slen = strlen(msg);
+		char * gbkmsg = (char *)malloc(2048);
+		size_t gbkmsg_sz = 2048;
+
+
+		iconv_t conv = iconv_open("UTF-8", "GBK");
+		iconv(conv, ((const char **)&msg), &slen, ((char **)&gbkmsg), &gbkmsg_sz);
+		iconv_close(conv);
+
+		int ret = CQ_sendPrivateMsg(ac, toID, gbkmsg);
+		free(gbkmsg);
 		lua_pushnumber(state, 0);
 	}
 	else {
@@ -184,7 +194,17 @@ int luai_sendDiscussMsg(lua_State * state) {
 	if (args == 2) {
 		int64_t toID = lua_tointeger(state, 1);
 		char * msg = (char *)lua_tostring(state, 2);
-		int ret = CQ_sendPrivateMsg(ac, toID, msg);
+		size_t slen = strlen(msg);
+		char * gbkmsg = (char *)malloc(2048);
+		size_t gbkmsg_sz = 2048;
+
+
+		iconv_t conv = iconv_open("GB2312", "UTF-8");
+		iconv(conv, (const char **)&msg, &slen, (char **)&gbkmsg, &gbkmsg_sz);
+		iconv_close(conv);
+		
+		int ret = CQ_sendPrivateMsg(ac, toID, gbkmsg);
+		free(gbkmsg);
 		lua_pushnumber(state, 0);
 	}
 	else {
