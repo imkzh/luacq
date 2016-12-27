@@ -114,7 +114,13 @@ CQLuaIf_SetInterfaceName("CQAPI") -- calls C interface defined in C code to set 
 
 function aha(msgType, senderID, sendTime, Msg, Font)
 	CQLuaIf_DebugWrite("[LUA] before CQLuaIf_sendPrivateMsg()\n")
-	CQLuaIf_sendPrivateMsg(senderID, string.format("[LUA] (Handler Called) Hello from %s", _VERSION))
+	-- CQLuaIf_sendPrivateMsg  
+	if pcall(CQLuaIf_sendPrivateMsg, senderID, string.format("[LUA] (Handler Called) Hello from %s", _VERSION)) then
+		CQLuaIf_DebugWrite("[LUA] CQLuaIf_sendPrivateMsg() ->Done\n")
+	else
+		CQLuaIf_DebugWrite("[LUA] CQLuaIf_sendPrivateMsg() ->failed\n")
+	end
+ 
 	CQLuaIf_DebugWrite("[LUA] after CQLuaIf_sendPrivateMsg(),return\n")
 	return 1
 	-- io.write(string.format("[LUA] (Handler Called) Hello from %s\n", _VERSION))

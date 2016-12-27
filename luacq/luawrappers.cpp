@@ -95,7 +95,7 @@ void luai_loadWrappers(lua_State * state) {
 	lua_register(state, "CQLuaIf_setGroupAddRequestV2", luai_setGroupAddRequestV2);
 	lua_register(state, "CQLuaIf_getGroupMemberInfoV2", luai_getGroupMemberInfoV2);
 	lua_register(state, "CQLuaIf_getStrangerInfo", luai_getStrangerInfo);
-	lua_register(state, "CQLuaIf_addLog", luai_addLog);
+	lua_register(state, "CQLuaIf_addLog", luai_addLog); 
 	lua_register(state, "CQLuaIf_getCookies", luai_getCookies);
 	lua_register(state, "CQLuaIf_getCsrfToken", luai_getCsrfToken);
 	lua_register(state, "CQLuaIf_getLoginQQ", luai_getLoginQQ);
@@ -142,40 +142,23 @@ extern "C"
 /*Lua interface for CQ_sendPrivateMsg*/
 int luai_sendPrivateMsg(lua_State * state) {
 	/*int32_t AuthCode, int64_t QQID, const char *msg*/
-	Debug_Write("CPP - LuaWrapper::SendPrivateMessage\n");
+	Debug_Write("[CPP] LuaWrapper::SendPrivateMessage\n");
 	// The number of function arguments will be on top of the stack.
 	int args = lua_gettop(state);
 	if (args == 2) {
 		int64_t toID = lua_tointeger(state, 1);
 		char * msg = (char *)lua_tostring(state, 2);
-		Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> Calling CQAPI\n");
-		char s[30];
-		sprintf(s, "   arg: toID: %ld\n", toID);
-		Debug_Write(s);
-		sprintf(s, "   arg: msg: %s\n", msg);
-		Debug_Write(s);
-
 		int ret = CQ_sendPrivateMsg(ac, toID, msg);
-		
-		sprintf(s, "retval = %d\n", ret);
-		Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> API Called.\n");
-		Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> returned ");
-		Debug_Write(s);
-
-		//lua_pushnumber(state, 0);
+		lua_pushnumber(state, 0);
 	}
 	else {
-		Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> Arguments Check Failed.\n");
-		//lua_pushnumber(state, -1);
+		lua_pop(state, args);
+		Debug_Write("[CPP] LuaWrapper::SendPrivateMessage -> Arguments Check Failed(too few).\n");
+		lua_pushnumber(state, -1);
 	}
 
-	// Push the return value on top of the stack. NOTE: We haven't popped the
-	// input arguments to our function. To be honest, I haven't checked if we
-	// must, but at least in stack machines like the JVM, the stack will be
-	// cleaned between each function call.
-	// Let Lua know how many return values we've passed
-	Debug_Write("CPP - LuaWrapper::SendPrivateMessage -> Wrapper Return.\n"); 
-	return 0;
+	Debug_Write("[CPP] LuaWrapper::SendPrivateMessage -> Wrapper Return.\n");
+	return 1;
 }
 
 #ifdef __cplusplus
@@ -186,14 +169,35 @@ int luai_sendGroupMsg(lua_State * state) {
 	/*int32_t AuthCode, int64_t groupid, const char *msg*/
 	return 0;
 }
-
+ 
 #ifdef __cplusplus
 extern "C"
 #endif
 /*Lua interface for CQ_sendDiscussMsg*/
 int luai_sendDiscussMsg(lua_State * state) {
 	/*int32_t AuthCode, int64_t discussid, const char *msg*/
-	return 0;
+	Debug_Write("[CPP] LuaWrapper::sendDiscussMsg\n");
+	// The number of function arguments will be on top of the stack.
+	int args = lua_gettop(state);
+	if (args == 2) {
+		int64_t toID = lua_tointeger(state, 1);
+		char * msg = (char *)lua_tostring(state, 2);
+		int ret = CQ_sendPrivateMsg(ac, toID, msg);
+		lua_pushnumber(state, 0);
+	}
+	else {
+		lua_pop(state, args);
+		Debug_Write("[CPP] LuaWrapper::sendDiscussMsg -> Arguments Check Failed(too few).\n");
+		lua_pushnumber(state, -1);
+	}
+
+	// Push the return value on top of the stack. NOTE: We haven't popped the
+	// input arguments to our function. To be honest, I haven't checked if we
+	// must, but at least in stack machines like the JVM, the stack will be
+	// cleaned between each function call.
+	// Let Lua know how many return values we've passed
+	Debug_Write("[CPP] LuaWrapper::sendDiscussMsg -> Wrapper Return.\n");
+	return 1;
 }
 
 #ifdef __cplusplus
