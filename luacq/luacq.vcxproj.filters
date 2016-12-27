@@ -115,6 +115,9 @@
     <ClCompile Include="DebugLogging.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="builtinfunctions.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lua_src\lapi.h">
@@ -214,6 +217,9 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="DebugLogging.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="builtinfunctions.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

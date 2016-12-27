@@ -4,8 +4,8 @@
 	#include "lua_src\lua.hpp"
 #else
 	#include "lua_src\lua.h"
-	# include "lua_src\lualib.h"
-	# include "lua_src\lauxlib.h"
+	#include "lua_src\lualib.h"
+	#include "lua_src\lauxlib.h"
 #endif
 
 #include "luawrappers.h"
@@ -13,7 +13,7 @@
 #include "DebugLogging.h"
 
 #include "iconv.h"
-
+   
 extern int ac;
 char InterfaceName[50] = {-1};
 unsigned char IsInterfaceNameSet = 0;
@@ -30,8 +30,8 @@ void lua_throw(lua_State * state) {
 		Debug_Write((char*)message);
 		puts(message);
 	}else{
-		Debug_Write("lua_throw: lua reported error but returned <Null String>");
-		puts("lua_throw: lua reported error but returned <Null String>");
+		Debug_Write("lua_throw: lua reported error but returned <Null String>\n");
+		puts("lua_throw: lua reported error but returned <Null String>\n");
 	}
 
 	lua_pop(state, 1);
@@ -69,7 +69,9 @@ void utf2gbk(const char * source, char ** dest) {
 
 lua_State * lua_doInit(){
 	lua_State *state = luaL_newstate();
+
 	luaL_openlibs(state);
+	
 	luai_loadWrappers(state);
  
 	if (file_exists(".\\init.lua")) {
@@ -85,14 +87,54 @@ lua_State * lua_doInit(){
 		}
  
 		Debug_Write("lua_doInit()::Lua_pcall()\n");
-
-		lua_pcall(state, 0, 0, 0);
-
+		result = lua_pcall(state, 0, 0, 0);
 		if (result != LUA_OK) {
 			lua_throw(state);
 			CQ_setFatal(ac, "Lua Engine failed to Execute initial script (.\\init.lua) since it may corrupted, please consider reinstall it.");
 			return 0;
 		}
+
+		WIN32_FIND_DATA ffd;
+		HANDLE hFind;
+
+		Debug_Write("[CPP]Loading All Scripts located in .\\lua\\*.lua\n");
+		hFind = FindFirstFile(L".\\lua\\*.lua", &ffd);
+		while (hFind != INVALID_HANDLE_VALUE) {
+			size_t convertedChars = 0;
+			char * fn = (char *)calloc(512,1);
+			char * fullfn = (char *)calloc(512, 1);
+			wcstombs_s(&convertedChars, fn, 512, ffd.cFileName, _TRUNCATE);
+			strcat_s(fullfn, 512, ".\\lua\\");
+			strcat_s(fullfn, 512, fn);
+
+			Debug_Write("[CPP|Loader]Loading ");
+			Debug_Write(fullfn);
+			Debug_Write("\n");
+
+			int result = luaL_loadfile(state, fullfn);
+
+			if (result != LUA_OK) {
+				Debug_Write("[CPP|Loader]lua_fatal: luaL_loadfile() failed.\n");
+				lua_throw(state);
+				free(fullfn);
+				free(fn);
+				CQ_setFatal(ac, "Lua Engine failed to load one of the initial script(Located at .\\lua\\*.lua).");
+			}
+
+			result = lua_pcall(state, 0, 0, 0);
+			if (result != LUA_OK) {
+				lua_throw(state);
+				CQ_setFatal(ac, "Lua Engine failed to Execute one of the initial script since it may corrupted");
+				return 0;
+			}
+			free(fullfn);
+			free(fn);
+			if (!FindNextFile(hFind, &ffd)) break;
+		}
+		Debug_Write("[CPP]Done.\n");
+		
+
+		
 	}else{
 		Debug_Write("Lua Engine has been disabled since it finds no initial script.\n");
 		CQ_setFatal(ac, "Lua Engine has been disabled since it finds no initial script.");
@@ -283,7 +325,7 @@ int luai_setGroupKick(lua_State * state) {
 	if (args == 3) {
 		int64_t groupID = lua_tointeger(state, 1);
 		int64_t infectedID = lua_tointeger(state, 2);
-		int32_t refusefurther = lua_tointeger(state, 3);
+		int32_t refusefurther = (int32_t)lua_tointeger(state, 3);
  
 		int ret = CQ_setGroupKick(ac, groupID, infectedID, refusefurther);
 		lua_pushnumber(state, ret);
@@ -333,7 +375,7 @@ int luai_setGroupAdmin(lua_State * state) {
 	if (args == 3) {
 		int64_t groupID = lua_tointeger(state, 1);
 		int64_t infectedID = lua_tointeger(state, 2);
-		int64_t isAdmin = lua_tointeger(state, 3);
+		int32_t isAdmin = (int32_t)lua_tointeger(state, 3);
 
 		int ret = CQ_setGroupAdmin(ac, groupID, infectedID, isAdmin);
 		lua_pushnumber(state, ret);
@@ -357,7 +399,7 @@ int luai_setGroupWholeBan(lua_State * state) {
 	int args = lua_gettop(state);
 	if (args == 2) {
 		int64_t groupID = lua_tointeger(state, 1);
-		int64_t enabled = lua_tointeger(state, 2);
+		int32_t enabled = (int32_t)lua_tointeger(state, 2);
 
 		int ret = CQ_setGroupWholeBan(ac, groupID, enabled);
 		lua_pushnumber(state, ret);
@@ -468,7 +510,7 @@ int luai_setGroupLeave(lua_State * state) {
 	int args = lua_gettop(state);
 	if (args == 2) {
 		int64_t groupID = lua_tointeger(state, 1);
-		int32_t isdismiss = lua_tointeger(state, 2);
+		int32_t isdismiss = (int32_t)lua_tointeger(state, 2);
  
 		int ret = CQ_setGroupLeave(ac, groupID, isdismiss);
  
@@ -599,7 +641,7 @@ int luai_getCsrfToken(lua_State * state) {
 /*Lua interface for CQ_getLoginQQ*/
 int luai_getLoginQQ(lua_State * state) {
 	/*int32_t AuthCode*/
-	lua_pushnumber(state, CQ_getLoginQQ(ac));
+	lua_pushnumber(state, (lua_Number)CQ_getLoginQQ(ac));
 	return 1;
 }
 
@@ -631,7 +673,7 @@ int luai_getAppDirectory(lua_State * state) {
 	return 1;
 }
 
- 
+  
 /*Lua interface for CQ_setFatal*/
 int luai_setFatal(lua_State * state) {
 	/*int32_t AuthCode, const char *errorinfo*/
