@@ -12,6 +12,8 @@
 #include "cqp.h"
 #include "DebugLogging.h"
 
+#include "iconv.h"
+
 extern int ac;
 char InterfaceName[50] = {-1};
 unsigned char IsInterfaceNameSet = 0;
@@ -28,11 +30,41 @@ void lua_throw(lua_State * state) {
 		Debug_Write((char*)message);
 		puts(message);
 	}else{
-		Debug_Write("lua_throw: lua reported error with <Null String>");
-		puts("lua_throw: lua reported error with <Null String>");
+		Debug_Write("lua_throw: lua reported error but returned <Null String>");
+		puts("lua_throw: lua reported error but returned <Null String>");
 	}
 
 	lua_pop(state, 1);
+}
+
+void gbk2utf(const char * source, char ** dest) {
+	size_t datlen = strlen(source);
+	size_t bufflen = 2048;
+	char * message = (char *)calloc(bufflen, 1);
+ 
+	*dest = message;
+
+	char * pIn = (char*)source;
+	char * pOut = (char*)message;
+
+	iconv_t conv = iconv_open("UTF-8", "GBK");
+	iconv(conv, (const char **)&pIn, &datlen, &pOut, &bufflen);
+	iconv_close(conv);
+}
+
+void utf2gbk(const char * source, char ** dest) {
+	size_t datlen = strlen(source);
+	size_t bufflen = 2048;
+	char * message = (char *)calloc(bufflen, 1);
+
+	*dest = message;
+
+	char * pIn = (char*)source;
+	char * pOut = (char*)message;
+
+	iconv_t conv = iconv_open("GBK", "UTF-8");
+	iconv(conv, (const char **)&pIn, &datlen, &pOut, &bufflen);
+	iconv_close(conv);
 }
 
 lua_State * lua_doInit(){
@@ -148,7 +180,13 @@ int luai_sendPrivateMsg(lua_State * state) {
 	if (args == 2) {
 		int64_t toID = lua_tointeger(state, 1);
 		char * msg = (char *)lua_tostring(state, 2);
-		int ret = CQ_sendPrivateMsg(ac, toID, msg);
+		size_t slen = strlen(msg);
+
+		char * gbkmsg;
+		utf2gbk(msg, &gbkmsg);
+
+		int ret = CQ_sendPrivateMsg(ac, toID, gbkmsg);
+		free(gbkmsg);
 		lua_pushnumber(state, 0);
 	}
 	else {
@@ -165,7 +203,7 @@ int luai_sendPrivateMsg(lua_State * state) {
 extern "C"
 #endif
 /*Lua interface for CQ_sendGroupMsg*/
-int luai_sendGroupMsg(lua_State * state) {
+int luai_sendGroupMsg(lua_State * state) { 
 	/*int32_t AuthCode, int64_t groupid, const char *msg*/
 	return 0;
 }
@@ -182,7 +220,13 @@ int luai_sendDiscussMsg(lua_State * state) {
 	if (args == 2) {
 		int64_t toID = lua_tointeger(state, 1);
 		char * msg = (char *)lua_tostring(state, 2);
-		int ret = CQ_sendPrivateMsg(ac, toID, msg);
+		size_t slen = strlen(msg);
+
+		char * gbkmsg;
+		utf2gbk(msg, &gbkmsg);
+		
+		int ret = CQ_sendPrivateMsg(ac, toID, gbkmsg);
+		free(gbkmsg);
 		lua_pushnumber(state, 0);
 	}
 	else {

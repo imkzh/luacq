@@ -11,6 +11,9 @@
 	lua_State * lua_doInit();
 	void luai_loadWrappers(lua_State * state);
 	void lua_throw(lua_State * state);
+	void gbk2utf(const char * source, char ** dest);
+	void utf2gbk(const char * source, char ** dest);
+
 
 	ExternC int CQLuaI_DebugWrite(lua_State * state);
 	ExternC int CQLuaI_SetInterfaceName(lua_State * state);
