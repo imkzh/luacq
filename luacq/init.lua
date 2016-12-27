@@ -70,7 +70,7 @@ function CQ.new()
 				CQLuaIf_DebugWrite("Calling Handler: "..tostring(evh.desc).."")
 				local ret = evh.handler(...)
 				CQLuaIf_DebugWrite("Handler done(".. tostring(ret) ..").")
-				return ret
+				-- return ret
 
  				--[[
 					if     hClass == CQ.handlerClasses["Startup"] then
