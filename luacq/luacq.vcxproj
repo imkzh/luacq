@@ -79,7 +79,8 @@
     </Link>
     <PostBuildEvent>
       <Command>copy "$(TargetDir)$(TargetFileName)" "D:\Documents\Desktop\cqpAir\app\$(TargetFileName)"
-copy "$(ProjectDir)init.lua" "D:\Documents\Desktop\cqpAir\init.lua"</Command>
+copy "$(ProjectDir)init.lua" "D:\Documents\Desktop\cqpAir\init.lua"
+copy "$(ProjectDir)com.kenstudio.luacq.json" "D:\Documents\Desktop\cqpAir\app\com.kenstudio.luacq.json"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>复制输出到CQA目录</Message>

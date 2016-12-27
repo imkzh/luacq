@@ -274,10 +274,14 @@ CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime,
 
 /*
 * 菜单，可在 .json 文件中设置菜单数目、函数名
-* 如果不使用菜单，请在 .json 及此处删除无用菜单
+* 如果不使用菜单，请在 .json 及此处删除无用菜单 
 */
-CQEVENT(int32_t, __menuA, 0)() {
-	MessageBoxA(NULL, "这是menuA，在这里载入窗口，或者进行其他工作。", "" ,0);
+CQEVENT(int32_t, __menuResetLua, 0)() {
+	enabled = false;
+	lua_close(state);
+	state = lua_doInit();
+	MessageBoxA(NULL, "已重置Lua引擎。", "" ,0);
+	enabled = true;
 	return 0;
 }
 

@@ -67,6 +67,50 @@ void utf2gbk(const char * source, char ** dest) {
 	iconv_close(conv);
 }
 
+void lua_doFiles(lua_State * state, const wchar_t * filePath) {
+	WIN32_FIND_DATA ffd;
+	HANDLE hFind;
+
+	hFind = FindFirstFile(filePath, &ffd);
+	while (hFind != INVALID_HANDLE_VALUE) {
+		size_t convertedChars = 0;
+		char * fn = (char *)calloc(512, 1);
+		char * fullfn = (char *)calloc(512, 1);
+		wcstombs_s(&convertedChars, fn, 512, ffd.cFileName, _TRUNCATE);
+		strcpy_s(fullfn, 512, ".\\lua\\");
+		strcat_s(fullfn, 512, fn);
+
+		Debug_Write("[CPP|Loader]Loading ");
+		Debug_Write(fullfn);
+		Debug_Write("\n");
+
+		int result = luaL_loadfile(state, fullfn);
+
+		if (result != LUA_OK) {
+			Debug_Write("[CPP|Loader]lua_fatal: luaL_loadfile() failed.\n");
+			lua_throw(state);
+			free(fullfn);
+			free(fn);
+			if (!FindNextFile(hFind, &ffd)) break;
+			else continue;
+			//CQ_setFatal(ac, "Lua Engine failed to load one of the initial script(Located at .\\lua\\*.lua).");
+		}
+
+		result = lua_pcall(state, 0, 0, 0);
+		if (result != LUA_OK) {
+			lua_throw(state);
+			//CQ_setFatal(ac, "Lua Engine failed to Execute one of the initial script since it may corrupted");
+			free(fullfn);
+			free(fn);
+			if (!FindNextFile(hFind, &ffd)) break;
+			else continue;
+		}
+		free(fullfn);
+		free(fn);
+		if (!FindNextFile(hFind, &ffd)) break;
+	}
+}
+
 lua_State * lua_doInit(){
 	lua_State *state = luaL_newstate();
 
@@ -94,43 +138,12 @@ lua_State * lua_doInit(){
 			return 0;
 		}
 
-		WIN32_FIND_DATA ffd;
-		HANDLE hFind;
+		Debug_Write("[CPP]Loading All <stdlib> Scripts\n");
+		lua_doFiles(state, L".\\lua\\*.stdlib.lua");
 
-		Debug_Write("[CPP]Loading All Scripts located in .\\lua\\*.lua\n");
-		hFind = FindFirstFile(L".\\lua\\*.lua", &ffd);
-		while (hFind != INVALID_HANDLE_VALUE) {
-			size_t convertedChars = 0;
-			char * fn = (char *)calloc(512,1);
-			char * fullfn = (char *)calloc(512, 1);
-			wcstombs_s(&convertedChars, fn, 512, ffd.cFileName, _TRUNCATE);
-			strcat_s(fullfn, 512, ".\\lua\\");
-			strcat_s(fullfn, 512, fn);
+		Debug_Write("[CPP]Loading All <module> Scripts\n\n");
+		lua_doFiles(state, L".\\lua\\*.module.lua");
 
-			Debug_Write("[CPP|Loader]Loading ");
-			Debug_Write(fullfn);
-			Debug_Write("\n");
-
-			int result = luaL_loadfile(state, fullfn);
-
-			if (result != LUA_OK) {
-				Debug_Write("[CPP|Loader]lua_fatal: luaL_loadfile() failed.\n");
-				lua_throw(state);
-				free(fullfn);
-				free(fn);
-				CQ_setFatal(ac, "Lua Engine failed to load one of the initial script(Located at .\\lua\\*.lua).");
-			}
-
-			result = lua_pcall(state, 0, 0, 0);
-			if (result != LUA_OK) {
-				lua_throw(state);
-				CQ_setFatal(ac, "Lua Engine failed to Execute one of the initial script since it may corrupted");
-				return 0;
-			}
-			free(fullfn);
-			free(fn);
-			if (!FindNextFile(hFind, &ffd)) break;
-		}
 		Debug_Write("[CPP]Done.\n");
 		
 
